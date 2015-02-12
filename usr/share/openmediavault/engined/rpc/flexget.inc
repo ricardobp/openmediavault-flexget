@@ -54,6 +54,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
         $this->registerMethod("doGetVersion");
         $this->registerMethod("doGetSeriesList");
         $this->registerMethod("doGetHistory");
+        $this->registerMethod("doRestartFlexget");
 	}
 
 	public function getSettings($params, $context)
@@ -152,6 +153,40 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
 		);
 		return $object;
 	}
+
+    public function doRestartFlexget($params, $context)
+    {
+        global $xmlConfig;
+        
+        $this->validateMethodContext(
+            $context,
+            array( "role" => OMV_ROLE_ADMINISTRATOR )
+        );
+
+        // Create a background process.
+        $bgStatusFilename = $this->createBgProcStatus();
+        $pid = $this->fork();
+        if ($pid > 0)   // Parent process.
+        {
+            $this->initializeBgProcStatus($bgStatusFilename, $pid);
+            return $bgStatusFilename;
+        }
+
+        // Child process.
+        try {
+            $bgOutputFilename = $this->createBgProcOutput();
+            $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
+
+            $cmd = sprintf("invoke-rc.d flexget restart");
+            $this->exec($cmd, $output, $bgOutputFilename);
+            $this->finalizeBgProcStatus($bgStatusFilename, $output);
+
+        } catch(Exception $e) {
+            $this->finalizeBgProcStatus($bgStatusFilename, "", $e);
+            exit(1);
+        }
+    }
+
 
     public function doCheckSyntax($params, $context)
     {
@@ -258,7 +293,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "flexget -c /home/flexget/.flexget/config.yml series list";
+            $cmd = "sudo -u flexget sh -c 'flexget -c /home/flexget/.flexget/config.yml series list'";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -291,7 +326,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "flexget -c /home/flexget/.flexget/config.yml history";
+            $cmd = "su - flexget 'flexget -c /home/flexget/.flexget/config.yml history'";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 

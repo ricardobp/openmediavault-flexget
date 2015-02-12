@@ -13,6 +13,14 @@ Ext.define("OMV.module.admin.service.flexget.Settings", {
         var me = this;
         var items = me.callParent(arguments);
         items.push({
+            id      : me.getId() + "-restart",
+            xtype   : "button",
+            text    : _("Restart"),
+            icon    : "images/reboot.png",
+            iconCls : Ext.baseCSSPrefix + "btn-icon-16x16",
+            scope   : me,
+            handler : Ext.Function.bind(me.onRestartFlexgetButton, me, [ me ])
+        },{
             id      : me.getId() + "-check",
             xtype   : "button",
             text    : _("Syntax"),
@@ -98,11 +106,44 @@ Ext.define("OMV.module.admin.service.flexget.Settings", {
         }];
     },
 
+    onRestartFlexgetButton: function() {
+        var me = this;
+        var config = me.findField("config").getValue();
+        var wnd = Ext.create("OMV.window.Execute", {
+            title           : _("Restarting Daemon and reloading config.yml"),
+            rpcService      : "Flexget",
+            rpcMethod       : "doRestartFlexget",
+            rpcParams      : {
+                "config" : config
+            },
+            rpcIgnoreErrors : true,
+            hideStartButton : true,
+            hideStopButton  : true,
+            width           : 250,
+            height			: 200,
+            cls             : "x-form-textarea-monospaced",
+            listeners       : {
+                scope     : me,
+                finish    : function(wnd, response) {
+                    wnd.appendValue(_("Done..."));
+                    wnd.setButtonDisabled("close", false);
+                },
+                exception : function(wnd, error) {
+                    OMV.MessageBox.error(null, error);
+                    wnd.setButtonDisabled("close", false);
+                }
+            }
+        });
+        wnd.setButtonDisabled("close", true);
+        wnd.show();
+        wnd.start();
+    },
+
     onCheckButton: function() {
         var me = this;
         var config = me.findField("config").getValue();
         var wnd = Ext.create("OMV.window.Execute", {
-            title           : _("Checking config ..."),
+            title           : _("Checking config.yml Syntax ..."),
             rpcService      : "Flexget",
             rpcMethod       : "doCheckSyntax",
             rpcParams      : {
