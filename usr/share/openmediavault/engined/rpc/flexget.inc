@@ -326,7 +326,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "su - flexget 'flexget -c /home/flexget/.flexget/config.yml history'";
+            $cmd = "sudo -u flexget sh -c 'flexget -c /home/flexget/.flexget/config.yml history'";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
