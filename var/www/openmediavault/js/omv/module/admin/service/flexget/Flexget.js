@@ -10,6 +10,9 @@
 //     16x16 pixel icon that is displayed in the navigation tree.
 // iconSvg: 
 //     SVG icon that is displayed in the navigation view.
+
+// require("js/omv/WorkspaceManager.js")
+
 OMV.WorkspaceManager.registerNode({
     id: "flexget",
     path: "/service",

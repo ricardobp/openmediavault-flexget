@@ -1,3 +1,5 @@
+// require("js/omv/WorkspaceManager.js")
+// require("js/omv/workspace/form/Panel.js")
 // require("js/omv/workspace/window/TextArea.js")
 
 Ext.define("OMV.module.admin.service.flexget.Settings", {
