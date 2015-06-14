@@ -50,12 +50,14 @@ case "$1" in
 FGUSER="flexget"
 
 # Full path to the flexget config.yml file to use.
-# Defaults to FGUSER $HOME/.flexget/config.yml
-CONFIG=""
+# Defaults to FGUSER /root/.flexget/config.yml
+
+HOME="$(getent passwd $FGUSER | awk -F ':' '{print $6}')"
+CONFIG=${HOME}/.flexget/config.yml
 
 # Path to the directory where flexget should log. Do not add trailing slash.
-# Defaults to the FGUSER $HOME/.flexget directory
-LOG=""
+# Defaults to the FGUSER /root/.flexget directory
+LOG="${HOME}/.flexget"
 
 # Log verbosity
 # Available options : none critical error warning info verbose debug trace
