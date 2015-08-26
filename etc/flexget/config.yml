@@ -5,7 +5,7 @@ schedules:
 
 templates:
   global:
-    email:
+    _email:
       from: 123@gmail.com
       to:
         - 123@gmail.com
