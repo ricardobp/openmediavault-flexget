@@ -6,7 +6,7 @@ require_once("openmediavault/object.inc");
 require_once("openmediavault/rpcservice.inc");
 require_once("openmediavault/util.inc");
 
-$yml = exec("echo \$(getent passwd flexget | awk -F ':' '{print \$6}')'/.flexget/config.yml'");
+$yml = exec("echo \$(getent passwd flexget | awk -F ':' '{print \$6}')'/.config/config.yml'");
 
 
 class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
@@ -230,7 +230,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = sprintf("flexget -c %s check", $tmpFile);
+            $cmd = sprintf("/opt/flexget/bin/flexget -c %s check", $tmpFile);
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -262,7 +262,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "sudo -u flexget sh -c 'flexget execute'";
+            $cmd = "/opt/flexget/bin/flexget execute'";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -295,7 +295,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "sudo -u flexget sh -c 'flexget series list'";
+            $cmd = "/opt/flexget/bin/flexget series list'";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -328,7 +328,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "sudo -u flexget sh -c 'flexget history'";
+            $cmd = "/opt/flexget/bin/flexget history'";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -363,7 +363,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "pip install flexget --upgrade";
+            $cmd = "/opt/flexget/bin/pip install flexget --upgrade";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 
@@ -396,7 +396,7 @@ class OMVRpcServiceFlexget extends OMVRpcServiceAbstract
             $bgOutputFilename = $this->createBgProcOutput();
             $this->updateBgProcStatus($bgStatusFilename, "outputfilename", $bgOutputFilename);
 
-            $cmd = "flexget -V";
+            $cmd = "/opt/flexget/bin/flexget -V";
             $this->exec($cmd, $output, $bgOutputFilename);
             $this->finalizeBgProcStatus($bgStatusFilename, $output);
 

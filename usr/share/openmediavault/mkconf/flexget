@@ -4,7 +4,7 @@ set -e
 . /usr/share/openmediavault/scripts/helper-functions
 
 FLEXGET_CONF="/etc/flexget/config.yml"
-OMV_FLEXGET_CONF="/home/flexget/.flexget/config.yml"
+OMV_FLEXGET_CONF="/home/flexget/.config/config.yml"
 
 cp -f ${OMV_FLEXGET_CONF} ${FLEXGET_CONF}
 
