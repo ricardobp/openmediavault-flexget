@@ -1,5 +1,5 @@
-openmediavault-flexget (1.0) UNRELEASED; urgency=low
+openmediavault-flexget (2.0) UNRELEASED; urgency=low
 
-  * Initial release. (Closes: #XXXXXX)
+  * Changed postinst, now flexget install into a virtualdev environment at /opt/flexget
 
- -- root <root@localhost.localdomain>  Thu, 13 Nov 2014 19:04:54 -0300
+ -- root <root@localhost.localdomain>  Sat, 06 Feb 2016 19:23:27 +1000

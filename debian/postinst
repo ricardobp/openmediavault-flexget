@@ -4,45 +4,44 @@ set -e
 . /usr/share/openmediavault/scripts/helper-functions
 
 RUN_AS="flexget"
-RUN_GROUP="flexget"
 SERVICE_NAME="flexget"
 
-FLEXGET_CONF="/etc/flexget/config.yml"
-OMV_FLEXGET_CONF="/home/flexget/.flexget/config.yml"
+OMV_FLEXGET_CONF="config.yml"
+OMV_FLEXGET_CONF_DIR="/home/flexget/.config/"
+OMV_FLEXGET_INSTALL_DIR="/opt/${SERVICE_NAME}"
 
 case "$1" in
-    configure)
-        SERVICE_XPATH_NAME="flexget"
-        SERVICE_XPATH="/config/services/${SERVICE_XPATH_NAME}"
-        # Add the default configuration
-        if ! omv_config_exists "${SERVICE_XPATH}"; then
-            omv_config_add_element "/config/services" "${SERVICE_XPATH_NAME}"
-            omv_config_add_element "${SERVICE_XPATH}" "enable" "0"
-        fi
+  configure)
+    SERVICE_XPATH_NAME="flexget"
+    SERVICE_XPATH="/config/services/${SERVICE_XPATH_NAME}"
+    # Add the default configuration
+    if ! omv_config_exists "${SERVICE_XPATH}"; then
+      omv_config_add_element "/config/services" "${SERVICE_XPATH_NAME}"
+      omv_config_add_element "${SERVICE_XPATH}" "enable" "0"
+    fi
 
-	if ! getent passwd ${SERVICE_NAME} >/dev/null 2>&1; then
-            echo "Adding ${SERVICE_NAME} user..."
-            useradd --create-home --groups users --no-user-group --shell /usr/sbin/nologin ${SERVICE_NAME}
-            sudo -u flexget sh -c 'mkdir ~/.flexget'
-	    insserv -d ${SERVICE_NAME}
-	else
-            echo "${SERVICE_NAME} user already exists."
-        fi
+    if ! getent passwd ${SERVICE_NAME} >/dev/null 2>&1; then
+      echo "Adding ${SERVICE_NAME} user..."
+      useradd --create-home --shell /usr/sbin/nologin ${SERVICE_NAME}
+      insserv -d ${SERVICE_NAME}
+    else
+      echo "${SERVICE_NAME} user already exists."
+    fi
 
-        if [ -e /var/run/${SERVICE_NAME} ]; then
-            echo "Cleaning old pid file..."
-            rm -Rf /var/run/${SERVICE_NAME}
-        fi
+    if [ -e /var/run/${SERVICE_NAME} ]; then
+      echo "Cleaning old pid file..."
+      rm -Rf /var/run/${SERVICE_NAME}
+    fi
 
-	if [ ! -d "/etc/${SERVICE_NAME}" ]; then
-            echo "Creating /etc/${SERVICE_NAME}"
-	    mkdir -p /etc/${SERVICE_NAME}
-	    touch /etc/${SERVICE_NAME}/config.yml
-	fi
+    if [ ! -d "/etc/${SERVICE_NAME}" ]; then
+      echo "Creating /etc/${SERVICE_NAME}"
+      mkdir -p /etc/${SERVICE_NAME}
+      touch /etc/${SERVICE_NAME}/config.yml
+    fi
 
-	if [ ! -f "/etc/default/${SERVICE_NAME}" ]; then
-	    echo "Creating /etc/default/${SERVICE_NAME}"
-  	    cat << 'EOF' > /etc/default/${SERVICE_NAME}
+    if [ ! -f "/etc/default/${SERVICE_NAME}" ]; then
+      echo "Creating /etc/default/${SERVICE_NAME}"
+      cat << 'EOF' > /etc/default/${SERVICE_NAME}
 # Configuration for /etc/init.d/flexget
 
 # User to run flexget as.
@@ -53,11 +52,11 @@ FGUSER="flexget"
 # Defaults to FGUSER /root/.flexget/config.yml
 
 HOME="$(getent passwd $FGUSER | awk -F ':' '{print $6}')"
-CONFIG=${HOME}/.flexget/config.yml
+CONFIG=${HOME}/.config/config.yml
 
 # Path to the directory where flexget should log. Do not add trailing slash.
 # Defaults to the FGUSER /root/.flexget directory
-LOG="${HOME}/.flexget"
+LOG="/var/log/flexget"
 
 # Log verbosity
 # Available options : none critical error warning info verbose debug trace
@@ -65,34 +64,44 @@ LOG="${HOME}/.flexget"
 LEVEL=""
 
 EOF
-	fi
+    fi
 
-	update-rc.d ${SERVICE_NAME} defaults
-	update-rc.d ${SERVICE_NAME} disable
+    update-rc.d ${SERVICE_NAME} defaults
+    update-rc.d ${SERVICE_NAME} disable
 
-        # Activate package triggers. These triggers are only set during the
-        # package installation.
-        pip install flexget
-        dpkg-trigger update-fixperms
-        dpkg-trigger update-locale
+    # Activate package triggers. These triggers are only set during the
+    # package installation.
+    if [ ! -d  ${OMV_FLEXGET_INSTALL_DIR} ];then
+      mkdir -p ${OMV_FLEXGET_INSTALL_DIR}
+      virtualenv ${OMV_FLEXGET_INSTALL_DIR}
+      . ${OMV_FLEXGET_INSTALL_DIR}/bin/activate
+      pip install --upgrade pip
+      pip install --upgrade flexget
+      deactivate
+      dpkg-trigger update-fixperms
+      dpkg-trigger update-locale
+    fi
 
-        if [ ! -f "${OMV_FLEXGET_CONF}" ]; then
-            cp -f ${FLEXGET_CONF} ${OMV_FLEXGET_CONF}
-        fi
-    ;;
+    if [ ! -f "${OMV_FLEXGET_CONF_DIR}/${OMV_FLEXGET_CONF}" ]; then
+      mkdir -p ${OMV_FLEXGET_CONF_DIR}
+      cp -f /etc/flexget/config.yml ${OMV_FLEXGET_CONF_DIR}
+      chown -R ${SERVICE_NAME}:${SERVICE_NAME} ${OMV_FLEXGET_CONF_DIR}
+    fi
+  ;;
 
-    abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
-    
-    *)
-        echo "postinst called with unknown argument" >&2
-        exit 1
-    ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+  ;;
+
+  *)
+  echo "postinst called with unknown argument" >&2
+  exit 1
+  ;;
 esac
+
 # Automatically added by dh_installinit
 if [ -x "/etc/init.d/flexget" ]; then
-	update-rc.d flexget defaults >/dev/null
-	invoke-rc.d flexget start || exit $?
+  update-rc.d flexget defaults >/dev/null
+  invoke-rc.d flexget start || exit $?
 fi
 # End automatically added section
 

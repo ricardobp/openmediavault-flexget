@@ -17,7 +17,7 @@
 # Author: Antoine Joubert, 19/01/2014
 
 NAME="flexget"
-DAEMON="/usr/local/bin/flexget"
+DAEMON="/opt/flexget/bin/flexget"
 SETTINGS="/etc/default/$NAME"
 
 DESC="Flexget"
