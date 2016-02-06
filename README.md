@@ -1,7 +1,7 @@
 openmediavault-flexget
 ======================
 
-Flexget plugin for OMV
+Flexget plugin for OpenMediaVault
 
 To install:
 
